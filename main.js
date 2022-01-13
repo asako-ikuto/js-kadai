@@ -1,14 +1,14 @@
-"use strict"
+"use strict";
 
-for (let i = 1; i < 100; i++) {
-    //3の倍数かつ5の倍数ならFizzBuzzと表示
-    if (i % 3 == 0 && i % 5 == 0) {
-        console.log(`FizzBuzz ${i}`);
-        //3の倍数ならFizzと表示
-    } else if (i % 3 == 0) {
-        console.log(`Fizz ${i}`);
-        //5の倍数ならBuzzと表示
-    } else if (i % 5 == 0) {
-        console.log(`Buzz ${i}`);
-    }
+const question = "日本の首都は？";
+let answer = prompt(question);
+
+//answerが"東京"になるまで繰り返す
+while (answer !== "東京") {
+
+    alert("不正解です");
+    answer = prompt(question);
+
 }
+
+alert("正解です");
