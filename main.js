@@ -1,4 +1,4 @@
-"use strict";
+"use strict"
 
 for (let i = 1; i < 100; i++) {
     //3の倍数かつ5の倍数ならFizzBuzzと表示
