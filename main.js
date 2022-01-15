@@ -14,7 +14,6 @@ const taskIndex = () => {
     tasks.forEach((value, index) => {
         console.log(`${index} : ${value}`);
     });
-
 };
 
 //タスクを追加する
