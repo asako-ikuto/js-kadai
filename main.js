@@ -5,15 +5,16 @@ const taskTitle = `============================
 ============================`;
 
 //タスク初期値
-const tasks = new Array('掃除', '買い物', '散歩');
+const tasks = ['掃除', '買い物', '散歩'];
 
 //タスク一覧を表示する
 const taskIndex = () => {
     console.log(taskTitle);
-    for (let i = 0; i < tasks.length; i++) {
-        console.log(`${i} : ${tasks[i]}`);
-    }
-}
+
+    tasks.forEach((value, index) => {
+        console.log(`${index} : ${value}`);
+    });
+};
 
 //タスクを追加する
 const addTask = () => {
@@ -26,7 +27,7 @@ const addTask = () => {
 
     taskIndex();
     addTask();
-}
+};
 
 //1回目の処理
 taskIndex();
