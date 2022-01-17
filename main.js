@@ -5,30 +5,30 @@ const taskTitle = `============================
 ============================`;
 
 //タスク初期値
-const example1 = {
-    content: '机を片付ける',
-    genre: '掃除',
-};
-
-const example2 = {
-    content: '牛乳を買う',
-    genre: '買い物',
-};
-
-const example3 = {
-    content: '散歩する',
-    genre: '運動',
-};
-
-const tasks = [example1, example2, example3];
+const tasks = [
+    {
+        content: '机を片付ける',
+        genre: '掃除',
+    },
+    {
+        content: '牛乳を買う',
+        genre: '買い物',
+    },
+    {
+        content: '散歩する',
+        genre: '運動',
+    }
+];
 
 //タスク一覧を表示する
-const taskIndex = () => {
+const showTaskList = () => {
 
     console.log(taskTitle);
     tasks.forEach((value, index) => {
         console.log(`${index} : [内容]${value.content}、[ジャンル]${value.genre}`);
     });
+
+    addTask();
 };
 
 //タスクを追加する
@@ -47,9 +47,7 @@ const addTask = () => {
     tasks.push(newTask);
     alert('新しいタスクを追加しました');
 
-    taskIndex();
-    addTask();
+    showTaskList();
 };
 
-taskIndex();
-addTask();
+showTaskList();
