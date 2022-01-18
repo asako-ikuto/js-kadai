@@ -5,29 +5,49 @@ const taskTitle = `============================
 ============================`;
 
 //タスク初期値
-const tasks = newArray('掃除', '買い物', '散歩');
+const tasks = [
+    {
+        content: '机を片付ける',
+        genre: '掃除',
+    },
+    {
+        content: '牛乳を買う',
+        genre: '買い物',
+    },
+    {
+        content: '散歩する',
+        genre: '運動',
+    }
+];
 
 //タスク一覧を表示する
-const taskIndex = () => {
+const showTaskList = () => {
+
     console.log(taskTitle);
-    for (let i = 0; i < tasks.length; i++) {
-        console.log(`${i} : ${tasks[i]}`);
-    }
+    tasks.forEach((value, index) => {
+        console.log(`${index} : [内容]${value.content}、[ジャンル]${value.genre}`);
+    });
+
+    addTask();
 };
 
 //タスクを追加する
 const addTask = () => {
+
     //操作内容確認
     let confOpe = prompt('「確認,追加,削除,終了」の4つのいずれかを入力してください');
+
     //タスク入力・タスク一覧に追加
-    let newTask = prompt('タスクを入力してください');
+    let newContent = prompt('タスクを入力してください');
+    let newGenre = prompt('ジャンルを入力してください');
+    let newTask = {
+        content: newContent,
+        genre: newGenre,
+    };
     tasks.push(newTask);
     alert('新しいタスクを追加しました');
 
-    taskIndex();
-    addTask();
+    showTaskList();
 };
 
-//1回目の処理
-taskIndex();
-addTask();
+showTaskList();
