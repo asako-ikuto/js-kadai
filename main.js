@@ -8,7 +8,7 @@ const BuzzNum = document.getElementById('BuzzNum');
 buttonAction.addEventListener('click', () => {
     const FizzNumValue = Number.parseFloat(FizzNum.value);
     const BuzzNumValue = Number.parseFloat(BuzzNum.value);
-    let newDiv;
+    let newDiv = document.createElement('div');
 
     //整数値判定
     if (Number.isInteger(FizzNumValue) && Number.isInteger(BuzzNumValue)) {
