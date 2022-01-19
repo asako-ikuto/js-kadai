@@ -1,53 +1,35 @@
 'use strict';
 
-const taskTitle = `============================
-現在持っているタスクの一覧
-============================`;
+const buttonAction = document.getElementById('button-action');
+const output = document.getElementById('output');
+const FizzNum = document.getElementById('FizzNum');
+const BuzzNum = document.getElementById('BuzzNum');
 
-//タスク初期値
-const tasks = [
-    {
-        content: '机を片付ける',
-        genre: '掃除',
-    },
-    {
-        content: '牛乳を買う',
-        genre: '買い物',
-    },
-    {
-        content: '散歩する',
-        genre: '運動',
+buttonAction.addEventListener('click', () => {
+    const FizzNumValue = Number.parseFloat(FizzNum.value);
+    const BuzzNumValue = Number.parseFloat(BuzzNum.value);
+    let newDiv;
+
+    //整数値判定
+    if (Number.isInteger(FizzNumValue) && Number.isInteger(BuzzNumValue)) {
+        //FizzBuzz関数
+        for (let i = 1; i < 100; i++) {
+            newDiv = document.createElement('div');
+            //FizzNumValueの倍数かつBuzzNumValueの倍数ならFizzBuzzと表示
+            if (i % FizzNumValue == 0 && i % BuzzNumValue == 0) {
+                newDiv.innerHTML = `FizzBuzz ${i}`;
+                //FizzNumValueの倍数ならFizzと表示
+            } else if (i % FizzNumValue == 0) {
+                newDiv.innerHTML = `Fizz ${i}`;
+                //BuzzNumValueの倍数ならBuzzと表示
+            } else if (i % BuzzNumValue == 0) {
+                newDiv.innerHTML = `Buzz ${i}`;
+            }
+            output.appendChild(newDiv);
+        }
+    } else {
+        newDiv = document.createElement('div');
+        newDiv.innerHTML = '整数値を入力してください';
+        output.appendChild(newDiv);
     }
-];
-
-//タスク一覧を表示する
-const showTaskList = () => {
-
-    console.log(taskTitle);
-    tasks.forEach((value, index) => {
-        console.log(`${index} : [内容]${value.content}、[ジャンル]${value.genre}`);
-    });
-
-    addTask();
-};
-
-//タスクを追加する
-const addTask = () => {
-
-    //操作内容確認
-    let confOpe = prompt('「確認,追加,削除,終了」の4つのいずれかを入力してください');
-
-    //タスク入力・タスク一覧に追加
-    let newContent = prompt('タスクを入力してください');
-    let newGenre = prompt('ジャンルを入力してください');
-    let newTask = {
-        content: newContent,
-        genre: newGenre,
-    };
-    tasks.push(newTask);
-    alert('新しいタスクを追加しました');
-
-    showTaskList();
-};
-
-showTaskList();
+});
