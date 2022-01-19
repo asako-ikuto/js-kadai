@@ -10,6 +10,8 @@ buttonAction.addEventListener('click', () => {
     const BuzzNumValue = Number.parseFloat(BuzzNum.value);
     let newDiv = document.createElement('div');
 
+    //出力クリア
+    output.innerHTML = '';
     //整数値判定
     if (Number.isInteger(FizzNumValue) && Number.isInteger(BuzzNumValue)) {
         //FizzBuzz関数
