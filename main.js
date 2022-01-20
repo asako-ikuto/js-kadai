@@ -1,40 +1,37 @@
 'use strict';
 
-const buttonAction = document.getElementById('button-action');
-const output = document.getElementById('output');
-const FizzNum = document.getElementById('FizzNum');
-const BuzzNum = document.getElementById('BuzzNum');
+const buttonAddTask = document.getElementById('button-addtask');
+const newTaskComment = document.getElementById('new-task-comment');
+const taskList = document.getElementById('task-list');
+//タスク一覧
+const tasks = [];
 
-buttonAction.addEventListener('click', () => {
-    const FizzNumValue = Number.parseFloat(FizzNum.value);
-    const BuzzNumValue = Number.parseFloat(BuzzNum.value);
+//タスク追加・一覧表示
+buttonAddTask.addEventListener('click', () => {
 
-    //出力クリア
-    output.innerHTML = '';
-    //整数値判定
-    if (Number.isInteger(FizzNumValue) && Number.isInteger(BuzzNumValue)) {
-        //FizzBuzz関数
-        for (let i = 1; i < 100; i++) {
-            //FizzNumValueの倍数かつBuzzNumValueの倍数ならFizzBuzzと表示
-            if (i % FizzNumValue == 0 && i % BuzzNumValue == 0) {
-                createOutput(`FizzBuzz ${i}`);
-                //FizzNumValueの倍数ならFizzと表示
-            } else if (i % FizzNumValue == 0) {
-                createOutput(`Fizz ${i}`);
-                //BuzzNumValueの倍数ならBuzzと表示
-            } else if (i % BuzzNumValue == 0) {
-                createOutput(`Buzz ${i}`);
-            }
-        }
-    } else {
-        createOutput('整数値を入力してください');
-    }
+    //新規タスク追加
+    let newTask = {
+        comment: newTaskComment.value,
+        status: '作業中',
+    };
+    tasks.push(newTask);
+
+    showTaskList();
 });
 
-//出力内容生成
-const createOutput = (result) => {
-    let newLi = document.createElement('li');
-    newLi.style.listStyle = 'none';
-    newLi.innerHTML = result;
-    output.appendChild(newLi);
+//タスク一覧の表示
+const showTaskList = () => {
+
+    //タスク一覧の表示クリア（ヘッダー除く）
+    while (taskList.rows[1]) taskList.deleteRow(1);
+
+    //タスク一覧の表示
+    tasks.forEach((value, index) => {
+        let newTr = document.createElement('tr');
+        newTr.innerHTML = `<td>${index}</td>
+                        <td>${value.comment}</td>
+                        <td><button type="button">${value.status}</button></td>
+                        <td><button type="button" id="delete-${index}">削除</button></td>`;
+        taskList.appendChild(newTr);
+    })
 };
