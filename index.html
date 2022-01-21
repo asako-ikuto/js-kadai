@@ -15,12 +15,15 @@
     <input type="radio" name="filter-status" value="finished">完了
 
     <!-- タスク一覧表示-->
-    <table id="task-list">
-        <tr>
-            <th>ID</th>
-            <th>コメント</th>
-            <th>状態</th>
-        </tr>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>コメント</th>
+                <th>状態</th>
+            </tr>
+        </thead>
+        <tbody id="task-list"></tbody>
     </table>
 
     <!--タスクの追加-->

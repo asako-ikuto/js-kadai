@@ -23,15 +23,15 @@ buttonAddTask.addEventListener('click', () => {
 const showTaskList = () => {
 
     //タスク一覧の表示クリア（ヘッダー除く）
-    while (taskList.rows[1]) taskList.deleteRow(1);
+    taskList.innerHTML = "";
 
-    //タスク一覧の表示
-    tasks.forEach((value, index) => {
-        let newTr = document.createElement('tr');
+    //タスク一覧の中身を表示
+    tasks.forEach((task, index) => {
+        const newTr = document.createElement('tr');
         newTr.innerHTML = `<td>${index}</td>
-                        <td>${value.comment}</td>
-                        <td><button type="button">${value.status}</button></td>
+                        <td>${task.comment}</td>
+                        <td><button type="button">${task.status}</button></td>
                         <td><button type="button" id="delete-${index}">削除</button></td>`;
         taskList.appendChild(newTr);
-    })
+    });
 };
