@@ -7,14 +7,29 @@
 </head>
 
 <body>
-    <h1>FizzBuzz問題</h1>
+    <h1>TODOリスト</h1>
 
-    FizzNum: <input type="text" id="FizzNum" placeholder="整数値を入力してください"><br>
-    BuzzNum:<input type="text" id="BuzzNum" placeholder="整数値を入力してください"><br>
-    <button type="button" id="button-action">実行</button><br>
+    <!-- 状態絞り込み -->
+    <input type="radio" name="filter-status" value="all" checked="checked">すべて
+    <input type="radio" name="filter-status" value="working">作業中
+    <input type="radio" name="filter-status" value="finished">完了
 
-    <p>【出力】</p>
-    <ul id="output" style="padding-left: 0;"></ul>
+    <!-- タスク一覧表示-->
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>コメント</th>
+                <th>状態</th>
+            </tr>
+        </thead>
+        <tbody id="task-list"></tbody>
+    </table>
+
+    <!--タスクの追加-->
+    <h2>新規タスクの追加</h2>
+    <input type="text" id="new-task-comment" style="margin-right: 10px;">
+    <button type="button" id="button-addtask">追加</button>
 
     <script src="main.js"></script>
 </body>
