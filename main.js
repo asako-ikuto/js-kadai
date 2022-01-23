@@ -1,6 +1,6 @@
 'use strict';
 
-const buttonAddTask = document.getElementById('button-addtask');
+const buttonAddTask = document.getElementById('button-add-task');
 const newTaskComment = document.getElementById('new-task-comment');
 const taskList = document.getElementById('task-list');
 //タスク一覧
@@ -31,7 +31,14 @@ const showTaskList = () => {
         newTr.innerHTML = `<td>${index}</td>
                         <td>${task.comment}</td>
                         <td><button type="button">${task.status}</button></td>
-                        <td><button type="button" id="delete-${index}">削除</button></td>`;
+                        <td><button type="button" id="delete-${index}">
+                            削除</button></td>`;
         taskList.appendChild(newTr);
+
+        //削除ボタンを押すとタスクから削除・タスク一覧更新
+        document.getElementById(`delete-${index}`).addEventListener('click', (e) => {
+            tasks.splice(index, 1);
+            showTaskList();
+        });
     });
 };
