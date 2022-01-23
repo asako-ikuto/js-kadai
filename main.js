@@ -1,7 +1,7 @@
 'use strict';
 
 const buttonAddTask = document.getElementById('button-add-task');
-const newTaskComment = document.getElementById('new-task-comment');
+const newtaskCommentTd = document.getElementById('new-task-comment');
 const taskList = document.getElementById('task-list');
 //タスク一覧
 const tasks = [];
@@ -11,10 +11,13 @@ buttonAddTask.addEventListener('click', () => {
 
     //新規タスク追加
     let newTask = {
-        comment: newTaskComment.value,
+        comment: newtaskCommentTd.value,
         status: '作業中',
     };
     tasks.push(newTask);
+
+    //入力欄の値をクリア
+    newtaskCommentTd.value = "";
 
     showTaskList();
 });
@@ -28,17 +31,36 @@ const showTaskList = () => {
     //タスク一覧の中身を表示
     tasks.forEach((task, index) => {
         const newTr = document.createElement('tr');
-        newTr.innerHTML = `<td>${index}</td>
-                        <td>${task.comment}</td>
-                        <td><button type="button">${task.status}</button></td>
-                        <td><button type="button" id="delete-${index}">
-                            削除</button></td>`;
-        taskList.appendChild(newTr);
 
-        //削除ボタンを押すとタスクから削除・タスク一覧更新
-        document.getElementById(`delete-${index}`).addEventListener('click', (e) => {
+        //タスクのindexのtd要素を生成、trに追加
+        const taskIndexTd = document.createElement('td');
+        taskIndexTd.textContent = index;
+        newTr.appendChild(taskIndexTd);
+
+        //タスクのcommentのtdを作成、trに追加
+        const taskCommentTd = document.createElement('td');
+        taskCommentTd.textContent = task.comment;
+        newTr.appendChild(taskCommentTd);
+
+        //タスクのstatusボタンを作成、新規tdに追加、trに追加
+        const taskStatusTd = document.createElement('td');
+        const taskStatusBtn = document.createElement('button');
+        taskStatusBtn.textContent = task.status;
+        taskStatusTd.appendChild(taskStatusBtn);
+        newTr.appendChild(taskStatusTd);
+
+        //タスクの削除ボタンを作成、新規tdに追加、trに追加
+        const taskDeleteTd = document.createElement('td');
+        const taskDeleteBtn = document.createElement('button');
+        taskDeleteBtn.textContent = '削除';
+        taskDeleteTd.appendChild(taskDeleteBtn);
+        newTr.appendChild(taskDeleteTd);
+        //削除ボタンを押すとタスクから削除、タスク一覧更新
+        taskDeleteBtn.addEventListener('click', () => {
             tasks.splice(index, 1);
             showTaskList();
         });
+
+        taskList.appendChild(newTr);
     });
 };
