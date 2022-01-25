@@ -10,7 +10,7 @@ const tasks = [];
 buttonAddTask.addEventListener('click', () => {
 
     //新規タスク追加
-    let newTask = {
+    const newTask = {
         comment: newtaskCommentTd.value,
         status: '作業中',
     };
@@ -48,6 +48,15 @@ const showTaskList = () => {
         taskStatusBtn.textContent = task.status;
         taskStatusTd.appendChild(taskStatusBtn);
         newTr.appendChild(taskStatusTd);
+        //statusボタンを押すと、タスクの状態（作業中⇔完了）変化
+        taskStatusBtn.addEventListener('click', () => {
+            if (tasks[index].status === '作業中') {
+                tasks[index].status = '完了';
+            } else if (tasks[index].status === '完了') {
+                tasks[index].status = '作業中';
+            }
+            showTaskList();
+        });
 
         //タスクの削除ボタンを作成、新規tdに追加、trに追加
         const taskDeleteTd = document.createElement('td');
