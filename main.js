@@ -74,8 +74,11 @@ const showTaskList = () => {
         taskList.appendChild(newTr);
 
         //ラジオボタンの選択項目（すべて、作業中、完了）で表示要素を変える
-        //作業中の場合
-        if (filterStatus[1].checked) {
+        //すべての場合
+        if (filterStatus[0].checked) {
+            newTr.style.display = 'visible';
+            //作業中の場合
+        } else if (filterStatus[1].checked) {
             //完了の項目を非表示
             if (tasks[index].status === '完了') {
                 newTr.style.display = 'none';
