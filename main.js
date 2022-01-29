@@ -1,101 +1,170 @@
 'use strict';
 
-const buttonAddTask = document.getElementById('button-add-task');
-const newtaskCommentTd = document.getElementById('new-task-comment');
-const taskList = document.getElementById('task-list');
-const filterStatus = document.getElementsByName('filter-status');
-//タスク一覧
-const tasks = [];
+//開始・取得。結果表示部分
+const startMsgTtl = document.getElementById('start-message-title');
+const startMsg = document.getElementById('start-message');
+const startMsgTxt = document.getElementById('start-message-text');
+const startBtn = document.getElementById('start-button');
+const question = document.getElementById('question');
+const homeBtn = document.getElementById('home-button');
 
-//タスク追加・一覧表示
-buttonAddTask.addEventListener('click', () => {
+//問題表示部分
+const questionTtl = document.getElementById('question-title');
+const questionCategory = document.getElementById('question-category');
+const questionDifficulty = document.getElementById('question-difficulty');
+const questionText = document.getElementById('question-text');
+const selectA = document.getElementById('selectA');
+const selectB = document.getElementById('selectB');
+const selectC = document.getElementById('selectC');
+const selectD = document.getElementById('selectD');
+const selectBtn = document.querySelectorAll('.question__select-button');
 
-    //新規タスク追加
-    const newTask = {
-        comment: newtaskCommentTd.value,
-        status: '作業中',
-    };
-    tasks.push(newTask);
+// Open Trivia DBのAPI URL
+const url = 'https://opentdb.com/api.php?amount=10&type=multiple';
 
-    //入力欄の値をクリア
-    newtaskCommentTd.value = "";
+//初期値
+let resultIndex = 0;
+//正解数の初期値
+let correctNum = 0;
 
-    showTaskList();
+//問題と選択肢を表示するクラス
+class questionClass {
+    constructor() {
+        this.category = '';
+        this.difficulty = '';
+        this.question = '';
+        this.correctAnswer = '';
+        this.incorrectAnswer0 = '';
+        this.incorrectAnswer1 = '';
+        this.incorrectAnswer2 = '';
+        this.questionNum = 0;
+        this.answers = [];
+    }
+
+    set_data(resultIndex, data) {
+        this.category = data.results[resultIndex].category;
+        this.difficulty = data.results[resultIndex].difficulty;
+        this.question = data.results[resultIndex].question;
+        this.correctAnswer = data.results[resultIndex].correct_answer;
+        this.incorrectAnswer0 = data.results[resultIndex].incorrect_answers[0];
+        this.incorrectAnswer1 = data.results[resultIndex].incorrect_answers[1];
+        this.incorrectAnswer2 = data.results[resultIndex].incorrect_answers[2];
+        this.questionNum = resultIndex + 1;
+        this.answers = [this.correctAnswer, this.incorrectAnswer0, this.incorrectAnswer1, this.incorrectAnswer2];
+    }
+
+    //正解の答えを得る
+    getCorrectAnswer() {
+        return this.correctAnswer;
+    }
+
+    //問題と選択肢（ランダム）を表示
+    showQuestion() {
+        //問題を表示
+        questionTtl.innerHTML = `問題${this.questionNum}`;
+        questionCategory.innerHTML = `[ジャンル]:${this.category}`;
+        questionDifficulty.innerHTML = `[難易度]:${this.difficulty}`;
+        questionText.innerHTML = this.question;
+
+        //選択肢をランダムに表示
+        for (let i = this.answers.length - 1; 0 < i; i--) {
+            // 0～(i+1)の範囲で値を取得
+            let r = Math.floor(Math.random() * (i + 1));
+            //要素の並び替え
+            let tmp = this.answers[i];
+            this.answers[i] = this.answers[r];
+            this.answers[r] = tmp;
+        }
+        selectA.innerHTML = this.answers[0];
+        selectB.innerHTML = this.answers[1];
+        selectC.innerHTML = this.answers[2];
+        selectD.innerHTML = this.answers[3];
+    }
+}
+
+//結果を表示するクラス
+class resultClass {
+
+    constructor() {
+        this.correctNum = '';
+    }
+
+    set_data(correctNum) {
+        this.correctNum = correctNum;
+    }
+    //結果を表示
+    showResult() {
+        //質問の表示から結果の表示に切り替え
+        question.style.display = 'none';
+        startMsg.style.display = 'block';
+        homeBtn.style.display = 'block';
+        //結果の表示
+        startMsgTtl.textContent = `あなたの正解数は${this.correctNum}です！！`;
+        startMsgTxt.textContent = '再度チャレジしたい場合は以下をクリック';
+    }
+}
+
+
+let jsonData;
+let correctAnswer;
+const objQuestion = new questionClass();
+const objResult = new resultClass();
+
+//開始ボタンをクリック、APIデータ取得
+startBtn.addEventListener('click', () => {
+    //取得中の表示に変更
+    startMsgTtl.textContent = '取得中';
+    startMsgTxt.textContent = '少々お待ちください';
+    startBtn.style.display = 'none';
+    //APIデータ取得
+    fetch(url)
+        .then((response) => response.json())
+        .then((data) => {
+            jsonData = data;
+            //取得表示から問題表示(1問目の表示）に切り替え
+            startMsg.style.display = 'none';
+            question.style.display = 'block';
+            objQuestion.set_data(resultIndex, jsonData); //resultIndex = 0;
+            objQuestion.showQuestion();
+        })
+        .catch((error) => console.log(error));
 });
 
-//タスク一覧の表示
-const showTaskList = () => {
+//選択肢を選んだ後の処理
+selectBtn.forEach((e) => {
+    e.addEventListener('click', (event) => {
+        correctAnswer = objQuestion.getCorrectAnswer();
+        //正解であれば正解数カウントアップ
+        console.log(event.target.innerHTML);
+        console.log(correctAnswer);
+        if (event.target.innerHTML === correctAnswer) {
+            correctNum += 1;
+        }
+        //問題を10問目まで表示
+        if (resultIndex < 9) {
+            resultIndex += 1;
 
-    //タスク一覧の表示クリア（ヘッダー除く）
-    taskList.innerHTML = "";
+            objQuestion.set_data(resultIndex, jsonData);
+            objQuestion.showQuestion();
 
-    //タスク一覧の中身を表示
-    tasks.forEach((task, index) => {
-        const newTr = document.createElement('tr');
-
-        //タスクのindexのtd要素を生成、trに追加
-        const taskIndexTd = document.createElement('td');
-        taskIndexTd.textContent = index;
-        newTr.appendChild(taskIndexTd);
-
-        //タスクのcommentのtdを作成、trに追加
-        const taskCommentTd = document.createElement('td');
-        taskCommentTd.textContent = task.comment;
-        newTr.appendChild(taskCommentTd);
-
-        //タスクのstatusボタンを作成、新規tdに追加、trに追加
-        const taskStatusTd = document.createElement('td');
-        const taskStatusBtn = document.createElement('button');
-        taskStatusBtn.textContent = task.status;
-        taskStatusTd.appendChild(taskStatusBtn);
-        newTr.appendChild(taskStatusTd);
-        //statusボタンを押すと、タスクの状態（作業中⇔完了）変化
-        taskStatusBtn.addEventListener('click', () => {
-            if (tasks[index].status === '作業中') {
-                tasks[index].status = '完了';
-            } else if (tasks[index].status === '完了') {
-                tasks[index].status = '作業中';
-            }
-            showTaskList();
-        });
-
-        //タスクの削除ボタンを作成、新規tdに追加、trに追加
-        const taskDeleteTd = document.createElement('td');
-        const taskDeleteBtn = document.createElement('button');
-        taskDeleteBtn.textContent = '削除';
-        taskDeleteTd.appendChild(taskDeleteBtn);
-        newTr.appendChild(taskDeleteTd);
-        //削除ボタンを押すとタスクから削除、タスク一覧更新
-        taskDeleteBtn.addEventListener('click', () => {
-            tasks.splice(index, 1);
-            showTaskList();
-        });
-
-        taskList.appendChild(newTr);
-
-        //ラジオボタンの選択項目（すべて、作業中、完了）で表示要素を変える
-        //すべての場合
-        if (filterStatus[0].checked) {
-            newTr.style.display = 'visible';
-            //作業中の場合
-        } else if (filterStatus[1].checked) {
-            //完了の項目を非表示
-            if (tasks[index].status === '完了') {
-                newTr.style.display = 'none';
-            }
-            //完了の場合
-        } else if (filterStatus[2].checked) {
-            //作業中の項目を非表示
-            if (tasks[index].status === '作業中') {
-                newTr.style.display = 'none';
-            }
+        } else {
+            //10問目が終わったら結果を表示
+            objResult.set_data(correctNum);
+            objResult.showResult();
         }
     });
-};
-
-//ラジオボタンの選択項目（すべて、作業中、完了）が変化した時にタスク一覧を再読み込み
-filterStatus.forEach((e) => {
-    e.addEventListener('change', () => {
-        showTaskList();
-    });
 });
+
+//ホームに戻るボタンを押した時の処理
+homeBtn.addEventListener('click', () => {
+    //値のリセット
+    resultIndex = 0;
+    correctNum = 0;
+
+    //スタートの表示に戻る
+    startMsgTtl.textContent = `ようこそ`;
+    startMsgTxt.textContent = '以下のボタンをクリック';
+    startBtn.style.display = 'block';
+    homeBtn.style.display = 'none';
+});
+

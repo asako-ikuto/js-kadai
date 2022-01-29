@@ -1,0 +1,46 @@
+p {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+/* 開始・取得中・結果画面 */
+.message-text {
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    padding: 5px 0px;
+}
+
+.message-text--start {
+    margin-bottom: 30px;
+}
+
+#home-button {
+    display: none;
+}
+
+/* 問題表示画面 */
+
+#question {
+    display: none;
+}
+
+.question__detail {
+    font-weight: bold;
+}
+
+#question__difficulty {
+    margin-top: 5px;
+}
+
+.question__select {
+    margin-top: 20px;
+}
+
+.question__select-button {
+    display: block;
+    margin-bottom: 5px;
+}
+
+
+
+
