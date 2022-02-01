@@ -22,93 +22,40 @@ const selectBtn = document.querySelectorAll('.question__select-button');
 // Open Trivia DBのAPI URL
 const url = 'https://opentdb.com/api.php?amount=10&type=multiple';
 
-//初期値
-let resultIndex = 0;
-//正解数の初期値
-let correctNum = 0;
-
-//問題と選択肢を表示するクラス
-class questionClass {
-    constructor() {
-        this.category = '';
-        this.difficulty = '';
-        this.question = '';
-        this.correctAnswer = '';
-        this.incorrectAnswer0 = '';
-        this.incorrectAnswer1 = '';
-        this.incorrectAnswer2 = '';
-        this.questionNum = 0;
-        this.answers = [];
+//クイズの値を取得する
+class Quiz {
+    constructor(quizData) {
+        this._quizzes = quizData.results;
+        this._correctAnswerNum = 0;
     }
 
-    set_data(resultIndex, data) {
-        this.category = data.results[resultIndex].category;
-        this.difficulty = data.results[resultIndex].difficulty;
-        this.question = data.results[resultIndex].question;
-        this.correctAnswer = data.results[resultIndex].correct_answer;
-        this.incorrectAnswer0 = data.results[resultIndex].incorrect_answers[0];
-        this.incorrectAnswer1 = data.results[resultIndex].incorrect_answers[1];
-        this.incorrectAnswer2 = data.results[resultIndex].incorrect_answers[2];
-        this.questionNum = resultIndex + 1;
-        this.answers = [this.correctAnswer, this.incorrectAnswer0, this.incorrectAnswer1, this.incorrectAnswer2];
+    //カテゴリーの取得
+    getQuizCategory(index) {
+        return this._quizzes[index - 1].category;
     }
-
-    //正解の答えを得る
-    getCorrectAnswer() {
-        return this.correctAnswer;
+    //難易度の取得
+    getQuizDifficulty(index) {
+        return this._quizzes[index - 1].difficulty;
     }
-
-    //問題と選択肢（ランダム）を表示
-    showQuestion() {
-        //問題を表示
-        questionTtl.innerHTML = `問題${this.questionNum}`;
-        questionCategory.innerHTML = `[ジャンル]:${this.category}`;
-        questionDifficulty.innerHTML = `[難易度]:${this.difficulty}`;
-        questionText.innerHTML = this.question;
-
-        //選択肢をランダムに表示
-        for (let i = this.answers.length - 1; 0 < i; i--) {
-            // 0～(i+1)の範囲で値を取得
-            let r = Math.floor(Math.random() * (i + 1));
-            //要素の並び替え
-            let tmp = this.answers[i];
-            this.answers[i] = this.answers[r];
-            this.answers[r] = tmp;
-        }
-        selectA.innerHTML = this.answers[0];
-        selectB.innerHTML = this.answers[1];
-        selectC.innerHTML = this.answers[2];
-        selectD.innerHTML = this.answers[3];
+    //問題文の取得
+    getQuizQuestion(index) {
+        return this._quizzes[index - 1].question;
+    }
+    //クイズの正答の取得
+    getQuizCorrectAnswer(index) {
+        return this._quizzes[index - 1].correct_answer;
+    }
+    //クイズの誤答選択肢を取得
+    getQuizIncorrectAnswer0(index) {
+        return this._quizzes[index - 1].incorrect_answers[0];
+    }
+    getQuizIncorrectAnswer1(index) {
+        return this._quizzes[index - 1].incorrect_answers[1];
+    }
+    getQuizIncorrectAnswer2(index) {
+        return this._quizzes[index - 1].incorrect_answers[2];
     }
 }
-
-//結果を表示するクラス
-class resultClass {
-
-    constructor() {
-        this.correctNum = '';
-    }
-
-    set_data(correctNum) {
-        this.correctNum = correctNum;
-    }
-    //結果を表示
-    showResult() {
-        //質問の表示から結果の表示に切り替え
-        question.style.display = 'none';
-        startMsg.style.display = 'block';
-        homeBtn.style.display = 'block';
-        //結果の表示
-        startMsgTtl.textContent = `あなたの正解数は${this.correctNum}です！！`;
-        startMsgTxt.textContent = '再度チャレジしたい場合は以下をクリック';
-    }
-}
-
-
-let jsonData;
-let correctAnswer;
-const objQuestion = new questionClass();
-const objResult = new resultClass();
 
 //開始ボタンをクリック、APIデータ取得
 startBtn.addEventListener('click', () => {
@@ -116,44 +63,118 @@ startBtn.addEventListener('click', () => {
     startMsgTtl.textContent = '取得中';
     startMsgTxt.textContent = '少々お待ちください';
     startBtn.style.display = 'none';
-    //APIデータ取得
-    fetch(url)
-        .then((response) => response.json())
-        .then((data) => {
-            jsonData = data;
-            //取得表示から問題表示(1問目の表示）に切り替え
-            startMsg.style.display = 'none';
-            question.style.display = 'block';
-            objQuestion.set_data(resultIndex, jsonData); //resultIndex = 0;
-            objQuestion.showQuestion();
-        })
-        .catch((error) => console.log(error));
+
+    //APIデータ取得、1問目を表示
+    getQuizData().then(quizData => {
+
+        console.log(quizData);
+        const insQuiz = new Quiz(quizData);
+        showQuiz(insQuiz, 1);
+    });
 });
 
 //選択肢を選んだ後の処理
 selectBtn.forEach((e) => {
     e.addEventListener('click', (event) => {
-        correctAnswer = objQuestion.getCorrectAnswer();
-        //正解であれば正解数カウントアップ
-        console.log(event.target.innerHTML);
-        console.log(correctAnswer);
-        if (event.target.innerHTML === correctAnswer) {
-            correctNum += 1;
-        }
-        //問題を10問目まで表示
-        if (resultIndex < 9) {
-            resultIndex += 1;
 
-            objQuestion.set_data(resultIndex, jsonData);
-            objQuestion.showQuestion();
 
+        if (questionNum < 10) {
+            questionNum += 1;
+            showQuiz(questionNum);
         } else {
             //10問目が終わったら結果を表示
-            objResult.set_data(correctNum);
-            objResult.showResult();
+            showResult(correctNum);
         }
+        // correctAnswer = objQuiz.getQuizCorrectAnswer(questionNum);
+
+        // console.log(correctAnswer);
+        // //正解であれば正解数カウントアップ
+        // console.log(event.target.innerHTML);
+        // console.log(correctAnswer);
+        // if (event.target.innerHTML === correctAnswer) {
+        //     correctNum += 1;
+        // }
+        // //問題を10問目まで表示
+        // if (questionNum < 10) {
+        //     questionNum += 1;
+
+        //     objQuestion.set_data(resultIndex, jsonData);
+        //     objQuestion.showQuiz();
+
+        // } else {
+        //     //10問目が終わったら結果を表示
+        //     objResult.set_data(correctNum);
+        //     objResult.showResult();
+        // }
     });
 });
+
+//APIを叩いてjsonデータ取得
+const getQuizData = async () => {
+    try {
+        const response = await fetch(url);
+        const quizData = await response.json();
+
+        return quizData;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+//取得したjsonデータから、問題と選択肢（ランダム）を表示
+const showQuiz = (quizData, questionNum) => {
+
+    //取得表示から問題表示に切り替え
+    startMsg.style.display = 'none';
+    question.style.display = 'block';
+
+    const objQuiz = quizData;
+
+    //問題文
+    const quizQuestion = objQuiz.getQuizQuestion(questionNum);
+    //ジャンル
+    const quizCategory = objQuiz.getQuizCategory(questionNum);
+    //難易度
+    const quizDifficulty = objQuiz.getQuizDifficulty(questionNum);
+    //正答、誤答
+    const quizCorrectAnswer = objQuiz.getQuizCorrectAnswer(questionNum);
+    const quizIncorrectAnswer0 = objQuiz.getQuizIncorrectAnswer0(questionNum);
+    const quizIncorrectAnswer1 = objQuiz.getQuizIncorrectAnswer1(questionNum);
+    const quizIncorrectAnswer2 = objQuiz.getQuizIncorrectAnswer2(questionNum);
+    const quizAnswers = [quizCorrectAnswer, quizIncorrectAnswer0, quizIncorrectAnswer1, quizIncorrectAnswer2];
+
+    //問題を表示
+    questionTtl.innerHTML = `問題${questionNum}`;
+    questionCategory.innerHTML = `[ジャンル]:${quizCategory}`;
+    questionDifficulty.innerHTML = `[難易度]:${quizDifficulty}`;
+    questionText.innerHTML = quizQuestion;
+
+    //選択肢をランダムに表示
+    for (let i = quizAnswers.length - 1; 0 < i; i--) {
+        // 0～(i+1)の範囲で値を取得
+        let r = Math.floor(Math.random() * (i + 1));
+        //要素の並び替え
+        let tmp = quizAnswers[i];
+        quizAnswers[i] = quizAnswers[r];
+        quizAnswers[r] = tmp;
+    }
+    selectA.innerHTML = quizAnswers[0];
+    selectB.innerHTML = quizAnswers[1];
+    selectC.innerHTML = quizAnswers[2];
+    selectD.innerHTML = quizAnswers[3];
+}
+
+
+//結果を表示する
+const showResult = (correctNum) => {
+    //質問の表示から結果の表示に切り替え
+    question.style.display = 'none';
+    startMsg.style.display = 'block';
+    homeBtn.style.display = 'block';
+    //結果の表示
+    startMsgTtl.textContent = `あなたの正解数は${correctNum}です！！`;
+    startMsgTxt.textContent = '再度チャレジしたい場合は以下をクリック';
+}
 
 //ホームに戻るボタンを押した時の処理
 homeBtn.addEventListener('click', () => {
