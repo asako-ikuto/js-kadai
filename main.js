@@ -1,23 +1,15 @@
 'use strict';
 
 //開始・取得。結果表示部分
-const startMsgTtl = document.getElementById('start-message-title');
-const startMsg = document.getElementById('start-message');
-const startMsgTxt = document.getElementById('start-message-text');
 const startBtn = document.getElementById('start-button');
 const question = document.getElementById('question');
 const homeBtn = document.getElementById('home-button');
 
 //問題表示部分
-const questionTtl = document.getElementById('question-title');
+const questionDetail = document.getElementById('question-detail');
 const questionCategory = document.getElementById('question-category');
 const questionDifficulty = document.getElementById('question-difficulty');
-const questionText = document.getElementById('question-text');
-const selectA = document.getElementById('selectA');
-const selectB = document.getElementById('selectB');
-const selectC = document.getElementById('selectC');
-const selectD = document.getElementById('selectD');
-const selectBtn = document.querySelectorAll('.question__select-button');
+const answersArea = document.getElementById('answers-area');
 
 // Open Trivia DBのAPI URL
 const url = 'https://opentdb.com/api.php?amount=10&type=multiple';
@@ -27,6 +19,12 @@ class Quiz {
     constructor(quizData) {
         this._quizzes = quizData.results;
         this._correctAnswerNum = 0;
+        this._numQuizzes = quizData.results.length;
+    }
+
+    //取得したクイズの数を取得
+    getNumQuizzes() {
+        return this._numQuizzes;
     }
 
     //カテゴリーの取得
@@ -55,99 +53,96 @@ class Quiz {
     getQuizIncorrectAnswer2(index) {
         return this._quizzes[index - 1].incorrect_answers[2];
     }
+
+    getCorrectAnswerNum() {
+        return this._correctAnswerNum;
+    }
+
+    //クイズの正解数をカウントする
+    countCorrectAnswers(index, answer) {
+        if (this._quizzes[index - 1].correct_answer === answer) {
+            this._correctAnswerNum++;
+        }
+    }
 }
 
 //開始ボタンをクリック、APIデータ取得
 startBtn.addEventListener('click', () => {
     //取得中の表示に変更
-    startMsgTtl.textContent = '取得中';
-    startMsgTxt.textContent = '少々お待ちください';
-    startBtn.style.display = 'none';
+    // startBtn.style.display = 'none';
+    startBtn.hidden = 'true';
 
     //APIデータ取得、1問目を表示
-    getQuizData().then(quizData => {
-
-        console.log(quizData);
-        const insQuiz = new Quiz(quizData);
-        showQuiz(insQuiz, 1);
-    });
+    fetchQuizData(1);
 });
 
-//選択肢を選んだ後の処理
-selectBtn.forEach((e) => {
-    e.addEventListener('click', (event) => {
-
-
-        if (questionNum < 10) {
-            questionNum += 1;
-            showQuiz(questionNum);
-        } else {
-            //10問目が終わったら結果を表示
-            showResult(correctNum);
-        }
-        // correctAnswer = objQuiz.getQuizCorrectAnswer(questionNum);
-
-        // console.log(correctAnswer);
-        // //正解であれば正解数カウントアップ
-        // console.log(event.target.innerHTML);
-        // console.log(correctAnswer);
-        // if (event.target.innerHTML === correctAnswer) {
-        //     correctNum += 1;
-        // }
-        // //問題を10問目まで表示
-        // if (questionNum < 10) {
-        //     questionNum += 1;
-
-        //     objQuestion.set_data(resultIndex, jsonData);
-        //     objQuestion.showQuiz();
-
-        // } else {
-        //     //10問目が終わったら結果を表示
-        //     objResult.set_data(correctNum);
-        //     objResult.showResult();
-        // }
-    });
-});
-
-//APIを叩いてjsonデータ取得
-const getQuizData = async () => {
+//クイズAPIからデータを取得
+const fetchQuizData = async (index) => {
     try {
+        //取得中の表示に変更
+        title.textContent = '取得中';
+        question.textContent = '少々お待ちください';
+
         const response = await fetch(url);
         const quizData = await response.json();
+        const quiz = new Quiz(quizData);
 
-        return quizData;
+        setNextQuiz(quiz, index);
     } catch (error) {
         console.log(error);
     }
 };
 
-//取得したjsonデータから、問題と選択肢（ランダム）を表示
-const showQuiz = (quizData, questionNum) => {
+//次のクイズを表示、最後に結果の画面を表示
+const setNextQuiz = (quiz, index) => {
+    while (answersArea.firstChild) {
+        answersArea.removeChild(answersArea.firstChild);
+    }
+    if (index <= quiz.getNumQuizzes()) {
+        makeQuiz(quiz, index);
+    } else {
+        finishQuiz(quiz);
+    }
+}
 
-    //取得表示から問題表示に切り替え
-    startMsg.style.display = 'none';
-    question.style.display = 'block';
+//クイズの表示部分（クイズ詳細、回答選択肢ボタン）を作成
+const makeQuiz = (quiz, index) => {
 
-    const objQuiz = quizData;
+    questionDetail.style.display = 'block';
 
-    //問題文
-    const quizQuestion = objQuiz.getQuizQuestion(questionNum);
-    //ジャンル
-    const quizCategory = objQuiz.getQuizCategory(questionNum);
-    //難易度
-    const quizDifficulty = objQuiz.getQuizDifficulty(questionNum);
+    title.innerHTML = `問題${index}`;
+    questionCategory.innerHTML = `[ジャンル]:${quiz.getQuizCategory(index)}`;
+    questionDifficulty.innerHTML = `[難易度]:${quiz.getQuizDifficulty(index)}`;
+    question.innerHTML = quiz.getQuizQuestion(index);
+
+    const answers = buildAnswers(quiz, index);
+
+    answers.forEach((answer) => {
+        const answerElement = document.createElement('li');
+        answerElement.style.marginBottom = '3px';
+        answersArea.appendChild(answerElement);
+
+        const buttonElement = document.createElement('button');
+        buttonElement.innerHTML = answer;
+        answerElement.appendChild(buttonElement);
+        buttonElement.addEventListener('click', () => {
+            quiz.countCorrectAnswers(index, answer);
+            index++
+            answersArea.removeChild(answersArea.firstChild);
+            setNextQuiz(quiz, index);
+        });
+    });
+}
+
+//クイズの正答・誤答をランダムに配列に入れて返す
+const buildAnswers = (quiz, index) => {
+
     //正答、誤答
-    const quizCorrectAnswer = objQuiz.getQuizCorrectAnswer(questionNum);
-    const quizIncorrectAnswer0 = objQuiz.getQuizIncorrectAnswer0(questionNum);
-    const quizIncorrectAnswer1 = objQuiz.getQuizIncorrectAnswer1(questionNum);
-    const quizIncorrectAnswer2 = objQuiz.getQuizIncorrectAnswer2(questionNum);
+    const quizCorrectAnswer = quiz.getQuizCorrectAnswer(index);
+    const quizIncorrectAnswer0 = quiz.getQuizIncorrectAnswer0(index);
+    const quizIncorrectAnswer1 = quiz.getQuizIncorrectAnswer1(index);
+    const quizIncorrectAnswer2 = quiz.getQuizIncorrectAnswer2(index);
     const quizAnswers = [quizCorrectAnswer, quizIncorrectAnswer0, quizIncorrectAnswer1, quizIncorrectAnswer2];
-
-    //問題を表示
-    questionTtl.innerHTML = `問題${questionNum}`;
-    questionCategory.innerHTML = `[ジャンル]:${quizCategory}`;
-    questionDifficulty.innerHTML = `[難易度]:${quizDifficulty}`;
-    questionText.innerHTML = quizQuestion;
 
     //選択肢をランダムに表示
     for (let i = quizAnswers.length - 1; 0 < i; i--) {
@@ -158,33 +153,29 @@ const showQuiz = (quizData, questionNum) => {
         quizAnswers[i] = quizAnswers[r];
         quizAnswers[r] = tmp;
     }
-    selectA.innerHTML = quizAnswers[0];
-    selectB.innerHTML = quizAnswers[1];
-    selectC.innerHTML = quizAnswers[2];
-    selectD.innerHTML = quizAnswers[3];
+
+    return quizAnswers;
 }
 
-
 //結果を表示する
-const showResult = (correctNum) => {
-    //質問の表示から結果の表示に切り替え
-    question.style.display = 'none';
-    startMsg.style.display = 'block';
+const finishQuiz = (quiz) => {
+    questionDetail.style.display = 'none';
     homeBtn.style.display = 'block';
+
+    const correctNum = quiz.getCorrectAnswerNum();
+
     //結果の表示
-    startMsgTtl.textContent = `あなたの正解数は${correctNum}です！！`;
-    startMsgTxt.textContent = '再度チャレジしたい場合は以下をクリック';
+    title.textContent = `あなたの正解数は${correctNum}です！！`;
+    question.textContent = '再度チャレジしたい場合は以下をクリック';
+
 }
 
 //ホームに戻るボタンを押した時の処理
 homeBtn.addEventListener('click', () => {
-    //値のリセット
-    resultIndex = 0;
-    correctNum = 0;
 
     //スタートの表示に戻る
-    startMsgTtl.textContent = `ようこそ`;
-    startMsgTxt.textContent = '以下のボタンをクリック';
+    title.textContent = `ようこそ`;
+    question.textContent = '以下のボタンをクリック';
     startBtn.style.display = 'block';
     homeBtn.style.display = 'none';
 });

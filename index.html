@@ -3,36 +3,23 @@
 
 <head>
     <meta charset="utf-8">
-    <title>JavaScript Test</title>
+    <title>Quiz</title>
     <link rel="stylesheet" href="main.css">
 </head>
 
 <body>
-    <!--開始・取得・結果表示部分-->
-    <div id="start-message">
-        <h1 id="start-message-title">ようこそ</h1>
-        <p class="message-text--start message-text" id="start-message-text">以下のボタンをクリック</p>
-        <button type="button" id="start-button">開始</button>
-        <button type="button" id="home-button">ホームに戻る</button>
+    <!--開始・質問文・結果表示部分-->
+    <h1 id="title">ようこそ</h1>
+    <div class="question__detail" id="question-detail">
+        <p id="question-category"></p>
+        <p id="question-difficulty"></p><br>
     </div>
+    <p class="question-text" id="question">以下のボタンをクリック</p>
+    <button type="button" id="start-button">開始</button>
+    <button type="button" id="home-button">ホームに戻る</button>
 
-    <!--問題表示部分-->
-    <div id="question">
-        <h1 id="question-title"></h1>
-        <div class="question__detail">
-            <p id="question-category"></p>
-            <p id="question-difficulty"></p><br>
-        </div>
-
-        <p class="message-text" id="question-text"></p>
-        <!--選択肢-->
-        <div class="question__select">
-            <button type="button" class="question__select-button" id="selectA"></button>
-            <button type="button" class="question__select-button" id="selectB"></button>
-            <button type="button" class="question__select-button" id="selectC"></button>
-            <button type="button" class="question__select-button" id="selectD"></button>
-        </div>
-    </div>
+    <!--回答ボタン表示部分-->
+    <ul id="answers-area"></ul>
 
     <script src="main.js"></script>
 </body>
