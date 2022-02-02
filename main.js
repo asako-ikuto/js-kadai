@@ -1,101 +1,182 @@
 'use strict';
 
-const buttonAddTask = document.getElementById('button-add-task');
-const newtaskCommentTd = document.getElementById('new-task-comment');
-const taskList = document.getElementById('task-list');
-const filterStatus = document.getElementsByName('filter-status');
-//タスク一覧
-const tasks = [];
+//開始・取得。結果表示部分
+const startBtn = document.getElementById('start-button');
+const question = document.getElementById('question');
+const homeBtn = document.getElementById('home-button');
 
-//タスク追加・一覧表示
-buttonAddTask.addEventListener('click', () => {
+//問題表示部分
+const questionDetail = document.getElementById('question-detail');
+const questionCategory = document.getElementById('question-category');
+const questionDifficulty = document.getElementById('question-difficulty');
+const answersArea = document.getElementById('answers-area');
 
-    //新規タスク追加
-    const newTask = {
-        comment: newtaskCommentTd.value,
-        status: '作業中',
-    };
-    tasks.push(newTask);
+// Open Trivia DBのAPI URL
+const url = 'https://opentdb.com/api.php?amount=10&type=multiple';
 
-    //入力欄の値をクリア
-    newtaskCommentTd.value = "";
+//クイズの値を取得する
+class Quiz {
+    constructor(quizData) {
+        this._quizzes = quizData.results;
+        this._correctAnswerNum = 0;
+        this._numQuizzes = quizData.results.length;
+    }
 
-    showTaskList();
+    //取得したクイズの数を取得
+    getNumQuizzes() {
+        return this._numQuizzes;
+    }
+
+    //カテゴリーの取得
+    getQuizCategory(index) {
+        return this._quizzes[index - 1].category;
+    }
+    //難易度の取得
+    getQuizDifficulty(index) {
+        return this._quizzes[index - 1].difficulty;
+    }
+    //問題文の取得
+    getQuizQuestion(index) {
+        return this._quizzes[index - 1].question;
+    }
+    //クイズの正答の取得
+    getQuizCorrectAnswer(index) {
+        return this._quizzes[index - 1].correct_answer;
+    }
+    //クイズの誤答選択肢を取得
+    getQuizIncorrectAnswer0(index) {
+        return this._quizzes[index - 1].incorrect_answers[0];
+    }
+    getQuizIncorrectAnswer1(index) {
+        return this._quizzes[index - 1].incorrect_answers[1];
+    }
+    getQuizIncorrectAnswer2(index) {
+        return this._quizzes[index - 1].incorrect_answers[2];
+    }
+
+    getCorrectAnswerNum() {
+        return this._correctAnswerNum;
+    }
+
+    //クイズの正解数をカウントする
+    countCorrectAnswers(index, answer) {
+        if (this._quizzes[index - 1].correct_answer === answer) {
+            this._correctAnswerNum++;
+        }
+    }
+}
+
+//開始ボタンをクリック、APIデータ取得
+startBtn.addEventListener('click', () => {
+    //取得中の表示に変更
+    // startBtn.style.display = 'none';
+    startBtn.hidden = 'true';
+
+    //APIデータ取得、1問目を表示
+    fetchQuizData(1);
 });
 
-//タスク一覧の表示
-const showTaskList = () => {
+//クイズAPIからデータを取得
+const fetchQuizData = async (index) => {
+    try {
+        //取得中の表示に変更
+        title.textContent = '取得中';
+        question.textContent = '少々お待ちください';
 
-    //タスク一覧の表示クリア（ヘッダー除く）
-    taskList.innerHTML = "";
+        const response = await fetch(url);
+        const quizData = await response.json();
+        const quiz = new Quiz(quizData);
 
-    //タスク一覧の中身を表示
-    tasks.forEach((task, index) => {
-        const newTr = document.createElement('tr');
-
-        //タスクのindexのtd要素を生成、trに追加
-        const taskIndexTd = document.createElement('td');
-        taskIndexTd.textContent = index;
-        newTr.appendChild(taskIndexTd);
-
-        //タスクのcommentのtdを作成、trに追加
-        const taskCommentTd = document.createElement('td');
-        taskCommentTd.textContent = task.comment;
-        newTr.appendChild(taskCommentTd);
-
-        //タスクのstatusボタンを作成、新規tdに追加、trに追加
-        const taskStatusTd = document.createElement('td');
-        const taskStatusBtn = document.createElement('button');
-        taskStatusBtn.textContent = task.status;
-        taskStatusTd.appendChild(taskStatusBtn);
-        newTr.appendChild(taskStatusTd);
-        //statusボタンを押すと、タスクの状態（作業中⇔完了）変化
-        taskStatusBtn.addEventListener('click', () => {
-            if (tasks[index].status === '作業中') {
-                tasks[index].status = '完了';
-            } else if (tasks[index].status === '完了') {
-                tasks[index].status = '作業中';
-            }
-            showTaskList();
-        });
-
-        //タスクの削除ボタンを作成、新規tdに追加、trに追加
-        const taskDeleteTd = document.createElement('td');
-        const taskDeleteBtn = document.createElement('button');
-        taskDeleteBtn.textContent = '削除';
-        taskDeleteTd.appendChild(taskDeleteBtn);
-        newTr.appendChild(taskDeleteTd);
-        //削除ボタンを押すとタスクから削除、タスク一覧更新
-        taskDeleteBtn.addEventListener('click', () => {
-            tasks.splice(index, 1);
-            showTaskList();
-        });
-
-        taskList.appendChild(newTr);
-
-        //ラジオボタンの選択項目（すべて、作業中、完了）で表示要素を変える
-        //すべての場合
-        if (filterStatus[0].checked) {
-            newTr.style.display = 'visible';
-            //作業中の場合
-        } else if (filterStatus[1].checked) {
-            //完了の項目を非表示
-            if (tasks[index].status === '完了') {
-                newTr.style.display = 'none';
-            }
-            //完了の場合
-        } else if (filterStatus[2].checked) {
-            //作業中の項目を非表示
-            if (tasks[index].status === '作業中') {
-                newTr.style.display = 'none';
-            }
-        }
-    });
+        setNextQuiz(quiz, index);
+    } catch (error) {
+        console.log(error);
+    }
 };
 
-//ラジオボタンの選択項目（すべて、作業中、完了）が変化した時にタスク一覧を再読み込み
-filterStatus.forEach((e) => {
-    e.addEventListener('change', () => {
-        showTaskList();
+//次のクイズを表示、最後に結果の画面を表示
+const setNextQuiz = (quiz, index) => {
+    while (answersArea.firstChild) {
+        answersArea.removeChild(answersArea.firstChild);
+    }
+    if (index <= quiz.getNumQuizzes()) {
+        makeQuiz(quiz, index);
+    } else {
+        finishQuiz(quiz);
+    }
+}
+
+//クイズの表示部分（クイズ詳細、回答選択肢ボタン）を作成
+const makeQuiz = (quiz, index) => {
+
+    questionDetail.style.display = 'block';
+
+    title.innerHTML = `問題${index}`;
+    questionCategory.innerHTML = `[ジャンル]:${quiz.getQuizCategory(index)}`;
+    questionDifficulty.innerHTML = `[難易度]:${quiz.getQuizDifficulty(index)}`;
+    question.innerHTML = quiz.getQuizQuestion(index);
+
+    const answers = buildAnswers(quiz, index);
+
+    answers.forEach((answer) => {
+        const answerElement = document.createElement('li');
+        answerElement.style.marginBottom = '3px';
+        answersArea.appendChild(answerElement);
+
+        const buttonElement = document.createElement('button');
+        buttonElement.innerHTML = answer;
+        answerElement.appendChild(buttonElement);
+        buttonElement.addEventListener('click', () => {
+            quiz.countCorrectAnswers(index, answer);
+            index++
+            answersArea.removeChild(answersArea.firstChild);
+            setNextQuiz(quiz, index);
+        });
     });
+}
+
+//クイズの正答・誤答をランダムに配列に入れて返す
+const buildAnswers = (quiz, index) => {
+
+    //正答、誤答
+    const quizCorrectAnswer = quiz.getQuizCorrectAnswer(index);
+    const quizIncorrectAnswer0 = quiz.getQuizIncorrectAnswer0(index);
+    const quizIncorrectAnswer1 = quiz.getQuizIncorrectAnswer1(index);
+    const quizIncorrectAnswer2 = quiz.getQuizIncorrectAnswer2(index);
+    const quizAnswers = [quizCorrectAnswer, quizIncorrectAnswer0, quizIncorrectAnswer1, quizIncorrectAnswer2];
+
+    //選択肢をランダムに表示
+    for (let i = quizAnswers.length - 1; 0 < i; i--) {
+        // 0～(i+1)の範囲で値を取得
+        let r = Math.floor(Math.random() * (i + 1));
+        //要素の並び替え
+        let tmp = quizAnswers[i];
+        quizAnswers[i] = quizAnswers[r];
+        quizAnswers[r] = tmp;
+    }
+
+    return quizAnswers;
+}
+
+//結果を表示する
+const finishQuiz = (quiz) => {
+    questionDetail.style.display = 'none';
+    homeBtn.style.display = 'block';
+
+    const correctNum = quiz.getCorrectAnswerNum();
+
+    //結果の表示
+    title.textContent = `あなたの正解数は${correctNum}です！！`;
+    question.textContent = '再度チャレジしたい場合は以下をクリック';
+
+}
+
+//ホームに戻るボタンを押した時の処理
+homeBtn.addEventListener('click', () => {
+
+    //スタートの表示に戻る
+    title.textContent = `ようこそ`;
+    question.textContent = '以下のボタンをクリック';
+    startBtn.style.display = 'block';
+    homeBtn.style.display = 'none';
 });
+

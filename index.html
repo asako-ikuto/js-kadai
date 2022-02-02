@@ -3,33 +3,23 @@
 
 <head>
     <meta charset="utf-8">
-    <title>JavaScript Test</title>
+    <title>Quiz</title>
+    <link rel="stylesheet" href="main.css">
 </head>
 
 <body>
-    <h1>TODOリスト</h1>
+    <!--開始・質問文・結果表示部分-->
+    <h1 id="title">ようこそ</h1>
+    <div class="question__detail" id="question-detail">
+        <p id="question-category"></p>
+        <p id="question-difficulty"></p><br>
+    </div>
+    <p class="question-text" id="question">以下のボタンをクリック</p>
+    <button type="button" id="start-button">開始</button>
+    <button type="button" id="home-button">ホームに戻る</button>
 
-    <!-- 状態絞り込み -->
-    <input type="radio" name="filter-status" value="all" checked="checked">すべて
-    <input type="radio" name="filter-status" value="working">作業中
-    <input type="radio" name="filter-status" value="finished">完了
-
-    <!-- タスク一覧表示-->
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>コメント</th>
-                <th>状態</th>
-            </tr>
-        </thead>
-        <tbody id="task-list"></tbody>
-    </table>
-
-    <!--タスクの追加-->
-    <h2>新規タスクの追加</h2>
-    <input type="text" id="new-task-comment" style="margin-right: 10px;">
-    <button type="button" id="button-add-task">追加</button>
+    <!--回答ボタン表示部分-->
+    <ul id="answers-area"></ul>
 
     <script src="main.js"></script>
 </body>

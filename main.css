@@ -1,0 +1,39 @@
+p {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+ul {
+    padding-left: 0px;
+}
+
+li {
+    list-style: none;
+}
+
+/* 開始・取得中・結果画面 */
+.question-text {
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    padding: 5px 0px;
+    margin-bottom: 20px;
+}
+
+#home-button {
+    display: none;
+}
+
+/* 問題表示画面 */
+
+.question__detail {
+    font-weight: bold;
+    display: none;
+}
+
+#question__difficulty {
+    margin-top: 5px;
+}
+
+
+
+
